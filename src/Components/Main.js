@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import Title from './Title'
 import PhotoWall from './PhotoWall'
 import AddPhoto from './AddPhoto'
+import {Route} from 'react-router-dom'
 
 class Main extends Component {
     constructor(){
@@ -19,11 +20,10 @@ class Main extends Component {
                 id: '2',
                 description: 'test3',
                 imgURL: "https://cdn-images-1.medium.com/max/900/1*cBie_JM1QFY78KfvOw2GoQ.png"
-            }],
-            screen: 'photos'  //photos or addPhoto
+            }]
         }
         this.removePhoto = this.removePhoto.bind(this)
-        this.navigate = this.navigate.bind(this)
+
     }
 
     removePhoto(postRemoved){
@@ -33,10 +33,10 @@ class Main extends Component {
         }))
     }
 
-    navigate(){
-        this.setState({
-            screen: 'addPhoto'
-        })
+    addPhoto(postSubmitted){
+        this.setState((state)=> ({
+            posts: state.posts.concat([postSubmitted])
+        }))
     }
 
     componentDidMount(){
@@ -52,25 +52,31 @@ class Main extends Component {
     }
 
     render() {
-        return <div>
-        {
-            this.state.screen === 'photos' && (
+        return (
             <div>
-            <Title title={'Photos'} />
-            <PhotoWall posts={this.state.posts} onRemovePhoto={this.removePhoto} onNavigate={this.navigate}/>
+            <Route exact path = "/" render={()=> (
+            <div>   
+                <Title title={'Photos'} />
+                <PhotoWall posts={this.state.posts} onRemovePhoto={this.removePhoto} onNavigate={this.navigate}/>
             </div>
-            )
-        }
-        {
-            this.state.screen === 'addPhoto' && (
-            <div>
-            <AddPhoto />
-            </div>
-            )
-        }
+            )} />
+            
+            <Route path = "/AddPhoto" render={({history})=> (
+                <AddPhoto onAddPhoto={(submittedPost)=> {
+                    this.addPhoto(submittedPost)
+                    history.push('/')
+                }}/>
+            )} />
+           
+
         </div>
+        )
     }
+    
 }
 
 
 export default Main
+
+//*for single component nav, just add the component prop*/
+// <Route path = "/AddPhoto" component={AddPhoto} />
